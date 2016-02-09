@@ -16,6 +16,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final int REQUEST_MEDIA_PROJECTION = 1;
 
+    private static final int REQUEST_MEDIA_PROJECTION_SERVICE = 2;
+
+
     @Bind(R.id.start)
     Button start;
 
@@ -58,6 +61,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 Timber.d("Permission denied");
             }
+        } else if (REQUEST_MEDIA_PROJECTION_SERVICE == requestCode) {
+            if(resultCode == RESULT_OK) {
+                Intent intent = new Intent(this, RecordingService.class);
+                intent.putExtra(RecordingService.EXTRA_DATA, data);
+                intent.putExtra(RecordingService.EXTRA_RESULT_CODE, resultCode);
+                startService(intent);
+            } else {
+                Timber.d("Permission denied");
+            }
         }
     }
 
@@ -77,8 +89,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.start_service:
-                intent = new Intent(this, RecordingService.class);
-                startService(intent);
+                intent = projectionManager.createScreenCaptureIntent();
+                startActivityForResult(intent, REQUEST_MEDIA_PROJECTION_SERVICE);
                 break;
             case R.id.stop_service:
                 intent = new Intent(this, RecordingService.class);
