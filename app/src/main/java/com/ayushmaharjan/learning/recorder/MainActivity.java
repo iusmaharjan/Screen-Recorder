@@ -22,6 +22,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.stop)
     Button stop;
 
+    @Bind(R.id.start_service)
+    Button startService;
+
+    @Bind(R.id.stop_service)
+    Button stopService;
+
     private ScreenRecorder recorder;
 
     private MediaProjectionManager projectionManager;
@@ -35,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         start.setOnClickListener(this);
         stop.setOnClickListener(this);
+        startService.setOnClickListener(this);
+        stopService.setOnClickListener(this);
 
         projectionManager = (MediaProjectionManager) getSystemService(
                 android.content.Context.MEDIA_PROJECTION_SERVICE);
@@ -55,17 +63,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        Intent intent;
         switch (v.getId()) {
             case R.id.start:
                 Intent permissionIntent = projectionManager.createScreenCaptureIntent();
                 startActivityForResult(permissionIntent, REQUEST_MEDIA_PROJECTION);
                 break;
             case R.id.stop:
-                if(recorder!=null) {
+                if (recorder != null) {
                     recorder.stopRecording();
                 } else {
                     Timber.d("Not Recording");
                 }
+                break;
+            case R.id.start_service:
+                intent = new Intent(this, RecordingService.class);
+                startService(intent);
+                break;
+            case R.id.stop_service:
+                intent = new Intent(this, RecordingService.class);
+                stopService(intent);
                 break;
         }
     }
