@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.projection.MediaProjectionManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
@@ -32,15 +31,14 @@ public class RecordingService extends Service {
             return START_NOT_STICKY;
         }
 
+        Timber.d("Service started.");
+
         Context context = getApplicationContext();
         Notification notification = new Notification.Builder(context)
                 .setPriority(Notification.PRIORITY_MIN)
                 .build();
 
-
         startForeground(NOTIFICATION_ID, notification);
-
-        Timber.d("Service started.");
 
         running = true;
         int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, 0);
