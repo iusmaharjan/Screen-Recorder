@@ -1,6 +1,8 @@
 package com.ayushmaharjan.learning.recorder;
 
+import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.IBinder;
@@ -15,6 +17,8 @@ public class RecordingService extends Service {
     public static final String EXTRA_RESULT_CODE = "result_code";
     public static final String EXTRA_DATA = "extra_data";
 
+    private static final int NOTIFICATION_ID = 1001;
+
     private static boolean running;
 
     public RecordingService() {
@@ -27,6 +31,14 @@ public class RecordingService extends Service {
             Timber.d("Service already running");
             return START_NOT_STICKY;
         }
+
+        Context context = getApplicationContext();
+        Notification notification = new Notification.Builder(context)
+                .setPriority(Notification.PRIORITY_MIN)
+                .build();
+
+
+        startForeground(NOTIFICATION_ID, notification);
 
         Timber.d("Service started.");
 
