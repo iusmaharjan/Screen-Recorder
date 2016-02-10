@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (REQUEST_MEDIA_PROJECTION == requestCode) {
             if(resultCode == RESULT_OK) {
+                Timber.d("Permission granted");
                 Intent intent = new Intent(this, RecordingService.class);
                 intent.putExtra(RecordingService.EXTRA_DATA, data);
                 intent.putExtra(RecordingService.EXTRA_RESULT_CODE, resultCode);
@@ -57,12 +58,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent;
         switch (v.getId()) {
             case R.id.start:
+                Timber.d("Requesting permission to record the screen");
                 intent = projectionManager.createScreenCaptureIntent();
                 startActivityForResult(intent, REQUEST_MEDIA_PROJECTION);
                 break;
             case R.id.stop:
                 intent = new Intent(this, RecordingService.class);
-                stopService(intent);
+                if(stopService(intent)) {
+                    Timber.d("Recording Service stopped");
+                } else {
+                    Timber.d("Recording Service not running");
+                }
                 break;
         }
     }

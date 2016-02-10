@@ -31,7 +31,7 @@ public class RecordingService extends Service {
             return START_NOT_STICKY;
         }
 
-        Timber.d("Service started.");
+        Timber.d("Service started");
 
         Context context = getApplicationContext();
         Notification notification = new Notification.Builder(context)
@@ -60,7 +60,7 @@ public class RecordingService extends Service {
     public void onDestroy() {
         running = false;
         recorder.stopRecording();
-        Timber.d("Service destroyed.");
+        Timber.d("Service destroyed");
         super.onDestroy();
     }
 }

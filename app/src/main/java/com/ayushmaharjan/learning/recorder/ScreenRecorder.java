@@ -8,6 +8,8 @@ import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Environment;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +38,10 @@ public class ScreenRecorder {
 
     private boolean recording;
 
+    private int screenWidth;
+    private int screenHeight;
+    private int pixelDensity;
+
     private final DateFormat fileFormat =
             new SimpleDateFormat("'Recording_'yyyy-MM-dd-HH-mm-ss'.mp4'", Locale.US);
 
@@ -51,17 +57,26 @@ public class ScreenRecorder {
         screenRecordingDir = new File(moviesDir, "ScreenRecordings");
 
         mMediaProjectionManager = (MediaProjectionManager)context.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(metrics);
+
+        screenWidth = metrics.widthPixels;
+        screenHeight = metrics.heightPixels;
+        pixelDensity = metrics.densityDpi;
     }
 
     public void startRecording() {
 
         if(!screenRecordingDir.mkdirs()) {
-            //TODO: Display log
+            Timber.d("Failed to created directory: %s", screenRecordingDir.getAbsolutePath());
         }
 
         mMediaRecorder = new MediaRecorder();
 
         initRecorder();
+
         prepareRecorder();
 
         //TODO: Learn about resultCode and data
@@ -103,9 +118,9 @@ public class ScreenRecorder {
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
+        mMediaRecorder.setVideoEncodingBitRate(8000 * 1000);
         mMediaRecorder.setVideoFrameRate(30);
-        mMediaRecorder.setVideoSize(480, 640);
+        mMediaRecorder.setVideoSize(screenWidth, screenHeight);
 
         String outputFileName = fileFormat.format(new Date());
         File outputFile = new File(screenRecordingDir, outputFileName);
@@ -117,15 +132,15 @@ public class ScreenRecorder {
             mMediaRecorder.prepare();
         } catch (IOException e) {
             e.printStackTrace();
-            //TODO: Display log
+            Timber.e(e.toString());
         }
     }
 
     private void setUpVirtualDisplay() {
         //TODO: Learn about virtual display flags
         mVirtualDisplay = projection.createVirtualDisplay("ScreenRecording",
-                480, 640, 800,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                screenWidth, screenHeight, pixelDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY,
                 mMediaRecorder.getSurface(), null, null);
     }
 }
